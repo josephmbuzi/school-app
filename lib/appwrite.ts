@@ -38,35 +38,20 @@ export const storage = new Storage(client);
 
 export async function login() {
   try {
-    const redirectUri = Linking.createURL("/");
+    const email = "test@example.com";
+    const password = "password123";
 
-    const response = await account.createOAuth2Token(
-      OAuthProvider.Google,
-      redirectUri
-    );
-    if (!response) throw new Error("Create OAuth2 token failed");
+    // Create session using email/password
+    const session = await account.createSession(email, password);
 
-    const browserResult = await openAuthSessionAsync(
-      response.toString(),
-      redirectUri
-    );
-    if (browserResult.type !== "success")
-      throw new Error("Create OAuth2 token failed");
-
-    const url = new URL(browserResult.url);
-    const secret = url.searchParams.get("secret")?.toString();
-    const userId = url.searchParams.get("userId")?.toString();
-    if (!secret || !userId) throw new Error("Create OAuth2 token failed");
-
-    const session = await account.createSession(userId, secret);
-    if (!session) throw new Error("Failed to create session");
-
-    return true;
+    return !!session;
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error);
     return false;
   }
 }
+
+
 
 export async function logout() {
   try {
@@ -82,7 +67,7 @@ export async function getCurrentUser() {
   try {
     const result = await account.get();
     if (result.$id) {
-      const userAvatar = avatar.getInitials(result.name);
+      const userAvatar = avatar.getInitials(result.name || "User");
 
       return {
         ...result,
@@ -96,6 +81,7 @@ export async function getCurrentUser() {
     return null;
   }
 }
+
 
 export async function getLatestProperties() {
   try {
@@ -164,4 +150,24 @@ export async function getPropertyById({ id }: { id: string }) {
     console.error(error);
     return null;
   }
+}
+
+
+export async function createUserProfile({
+  uid,
+  name,
+  email,
+  photoUrl,
+}: {
+  uid: string;
+  name: string;
+  email: string;
+  photoUrl: string | null;
+}) {
+  return databases.createDocument(
+    config.databaseId!,
+    "users",
+    uid,
+    { name, email, photoUrl }
+  );
 }

@@ -1,21 +1,23 @@
-import React, { createContext, useContext, ReactNode } from "react";
-
-import { getCurrentUser } from "./appwrite";
-import { useAppwrite } from "./useAppwrite";
-import { Redirect } from "expo-router";
-
-interface GlobalContextType {
-  isLogged: boolean;
-  user: User | null;
-  loading: boolean;
-  refetch: () => void;
-}
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
 
 interface User {
   $id: string;
   name: string;
   email: string;
   avatar: string;
+}
+
+interface GlobalContextType {
+  isLogged: boolean;
+  user: User | null;
+  loading: boolean;
+  refetch: () => void;
 }
 
 const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
@@ -25,20 +27,30 @@ interface GlobalProviderProps {
 }
 
 export const GlobalProvider = ({ children }: GlobalProviderProps) => {
-  const {
-    data: user,
-    loading,
-    refetch,
-  } = useAppwrite({
-    fn: getCurrentUser,
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const isLogged = !!user;
+  useEffect(() => {
+    // Simulate "auto-login"
+    const dummyUser = {
+      $id: "demo",
+      name: "Demo User",
+      email: "demo@example.com",
+      avatar: "https://ui-avatars.com/api/?name=Demo+User",
+    };
+
+    setUser(dummyUser);
+    setLoading(false);
+  }, []);
+
+  const refetch = () => {
+    // Do nothing for now
+  };
 
   return (
     <GlobalContext.Provider
       value={{
-        isLogged,
+        isLogged: true,
         user,
         loading,
         refetch,
@@ -51,8 +63,9 @@ export const GlobalProvider = ({ children }: GlobalProviderProps) => {
 
 export const useGlobalContext = (): GlobalContextType => {
   const context = useContext(GlobalContext);
-  if (!context)
+  if (!context) {
     throw new Error("useGlobalContext must be used within a GlobalProvider");
+  }
 
   return context;
 };

@@ -23,13 +23,6 @@ const Property = () => {
 
   const windowHeight = Dimensions.get("window").height;
 
-  const { data: property } = useAppwrite({
-    fn: getPropertyById,
-    params: {
-      id: id!,
-    },
-  });
-
   return (
     <View>
       <ScrollView
@@ -38,7 +31,7 @@ const Property = () => {
       >
         <View className="relative w-full" style={{ height: windowHeight / 2 }}>
           <Image
-            source={{ uri: property?.image }}
+          source={images.hotel}
             className="size-full"
             resizeMode="cover"
           />
@@ -75,20 +68,20 @@ const Property = () => {
 
         <View className="px-5 mt-7 flex gap-2">
           <Text className="text-2xl font-rubik-extrabold">
-            {property?.name}
+          Protea Hotel
           </Text>
 
           <View className="flex flex-row items-center gap-3">
             <View className="flex flex-row items-center px-4 py-2 bg-primary-100 rounded-full">
               <Text className="text-xs font-rubik-bold text-primary-300">
-                {property?.type}
+                Hotel Special Single Room
               </Text>
             </View>
 
             <View className="flex flex-row items-center gap-2">
               <Image source={icons.star} className="size-5" />
               <Text className="text-black-200 text-sm mt-1 font-rubik-medium">
-                {property?.rating} ({property?.reviews.length} reviews)
+                4.0 (20 reviews)
               </Text>
             </View>
           </View>
@@ -98,19 +91,19 @@ const Property = () => {
               <Image source={icons.bed} className="size-4" />
             </View>
             <Text className="text-black-300 text-sm font-rubik-medium ml-2">
-              {property?.bedrooms} Beds
+              1 Beds
             </Text>
             <View className="flex flex-row items-center justify-center bg-primary-100 rounded-full size-10 ml-7">
               <Image source={icons.bath} className="size-4" />
             </View>
             <Text className="text-black-300 text-sm font-rubik-medium ml-2">
-              {property?.bathrooms} Baths
+              1 Baths
             </Text>
             <View className="flex flex-row items-center justify-center bg-primary-100 rounded-full size-10 ml-7">
               <Image source={icons.area} className="size-4" />
             </View>
             <Text className="text-black-300 text-sm font-rubik-medium ml-2">
-              {property?.area} sqft
+              300 sqft
             </Text>
           </View>
 
@@ -122,16 +115,16 @@ const Property = () => {
             <View className="flex flex-row items-center justify-between mt-4">
               <View className="flex flex-row items-center">
                 <Image
-                  source={{ uri: property?.agent.avatar }}
+                source={images.avatar}
                   className="size-14 rounded-full"
                 />
 
                 <View className="flex flex-col items-start justify-center ml-3">
                   <Text className="text-lg text-black-300 text-start font-rubik-bold">
-                    {property?.agent.name}
+                    Chisala Mumba
                   </Text>
                   <Text className="text-sm text-black-200 text-start font-rubik-medium">
-                    {property?.agent.email}
+                    chisala@gmail.com
                   </Text>
                 </View>
               </View>
@@ -148,7 +141,7 @@ const Property = () => {
               Overview
             </Text>
             <Text className="text-black-200 text-base font-rubik mt-2">
-              {property?.description}
+            Protea Hotel by Marriott Lusaka International Airport features an outdoor swimming pool, garden, a restaurant and bar in Lusaka. This 4-star hotel offers a 24-hour front desk.
             </Text>
           </View>
 
@@ -157,60 +150,61 @@ const Property = () => {
               Facilities
             </Text>
 
-            {property?.facilities.length > 0 && (
-              <View className="flex flex-row flex-wrap items-start justify-start mt-2 gap-5">
-                {property?.facilities.map((item: string, index: number) => {
-                  const facility = facilities.find(
-                    (facility) => facility.title === item
-                  );
+            <View className="mt-7">
+  <Text className="text-black-300 text-xl font-rubik-bold">
+    Facilities
+  </Text>
 
-                  return (
-                    <View
-                      key={index}
-                      className="flex flex-1 flex-col items-center min-w-16 max-w-20"
-                    >
-                      <View className="size-14 bg-primary-100 rounded-full flex items-center justify-center">
-                        <Image
-                          source={facility ? facility.icon : icons.info}
-                          className="size-6"
-                        />
-                      </View>
+  <View className="flex flex-row flex-wrap items-start justify-start mt-2 gap-5">
+    {[
+      { title: "Wi-Fi", icon: icons.wifi },
+      { title: "Laundry", icon: icons.laundry },
+      { title: "Car Park", icon: icons.carPark },
+      { title: "Pool", icon: icons.swim },
+      { title: "Gym", icon: icons.run },
+    ].map((facility, index) => (
+      <View
+        key={index}
+        className="flex flex-1 flex-col items-center min-w-16 max-w-20"
+      >
+        <View className="size-14 bg-primary-100 rounded-full flex items-center justify-center">
+          <Image source={facility.icon} className="size-6" />
+        </View>
 
-                      <Text
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        className="text-black-300 text-sm text-center font-rubik mt-1.5"
-                      >
-                        {item}
-                      </Text>
-                    </View>
-                  );
-                })}
-              </View>
-            )}
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="tail"
+          className="text-black-300 text-sm text-center font-rubik mt-1.5"
+        >
+          {facility.title}
+        </Text>
+      </View>
+    ))}
+  </View>
+</View>
+
           </View>
 
-          {property?.gallery.length > 0 && (
-            <View className="mt-7">
-              <Text className="text-black-300 text-xl font-rubik-bold">
-                Gallery
-              </Text>
-              <FlatList
-                contentContainerStyle={{ paddingRight: 20 }}
-                data={property?.gallery}
-                keyExtractor={(item) => item.$id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                renderItem={({ item }) => (
-                  <Image
-                    source={{ uri: item.image }}
-                    className="size-40 rounded-xl"
-                  />
-                )}
-                contentContainerClassName="flex gap-4 mt-3"
-              />
-            </View>
-          )}
+          <View className="mt-7">
+  <Text className="text-black-300 text-xl font-rubik-bold">Gallery</Text>
+
+  <FlatList
+    horizontal
+    data={[
+      require("@/assets/images/properties/1.jpg"),
+      require("@/assets/images/properties/2.jpg"),
+      require("@/assets/images/properties/1.jpg"),
+    ]}
+    keyExtractor={(_, index) => index.toString()}
+    showsHorizontalScrollIndicator={false}
+    renderItem={({ item }) => (
+      <Image source={item} className="size-40 rounded-xl" />
+    )}
+    contentContainerStyle={{ paddingRight: 20 }}
+    contentContainerClassName="flex gap-4 mt-3"
+  />
+</View>
+
 
           <View className="mt-7">
             <Text className="text-black-300 text-xl font-rubik-bold">
@@ -219,7 +213,7 @@ const Property = () => {
             <View className="flex flex-row items-center justify-start mt-4 gap-2">
               <Image source={icons.location} className="w-7 h-7" />
               <Text className="text-black-200 text-sm font-rubik-medium">
-                {property?.address}
+                Chalala, 36053
               </Text>
             </View>
 
@@ -229,28 +223,23 @@ const Property = () => {
             />
           </View>
 
-          {property?.reviews.length > 0 && (
-            <View className="mt-7">
-              <View className="flex flex-row items-center justify-between">
-                <View className="flex flex-row items-center">
-                  <Image source={icons.star} className="size-6" />
-                  <Text className="text-black-300 text-xl font-rubik-bold ml-2">
-                    {property?.rating} ({property?.reviews.length} reviews)
-                  </Text>
-                </View>
+          <View className="mt-7">
+  <View className="flex flex-row items-center justify-between">
+    <View className="flex flex-row items-center">
+      <Image source={icons.star} className="size-6" />
+      <Text className="text-black-300 text-xl font-rubik-bold ml-2">
+        4.9 (120 reviews)
+      </Text>
+    </View>
 
-                <TouchableOpacity>
-                  <Text className="text-primary-300 text-base font-rubik-bold">
-                    View All
-                  </Text>
-                </TouchableOpacity>
-              </View>
+    <TouchableOpacity>
+      <Text className="text-primary-300 text-base font-rubik-bold">
+        View All
+      </Text>
+    </TouchableOpacity>
+  </View>
+</View>
 
-              <View className="mt-5">
-                <Comment item={property?.reviews[0]} />
-              </View>
-            </View>
-          )}
         </View>
       </ScrollView>
 
@@ -264,7 +253,7 @@ const Property = () => {
               numberOfLines={1}
               className="text-primary-300 text-start text-2xl font-rubik-bold"
             >
-              ${property?.price}
+              $500
             </Text>
           </View>
 
