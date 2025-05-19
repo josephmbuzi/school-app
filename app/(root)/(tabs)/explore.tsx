@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useEffect } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 
 import icons from "@/constants/icons";
@@ -16,43 +15,38 @@ import { Card } from "@/components/Cards";
 import Filters from "@/components/Filters";
 import NoResults from "@/components/NoResults";
 
-import { getProperties } from "@/lib/appwrite";
-import { useAppwrite } from "@/lib/useAppwrite";
+import { staticProperties } from "@/constants/staticProperties";
 
 const Explore = () => {
   const params = useLocalSearchParams<{ query?: string; filter?: string }>();
 
-  const {
-    data: properties,
-    refetch,
-    loading,
-  } = useAppwrite({
-    fn: getProperties,
-    params: {
-      filter: params.filter!,
-      query: params.query!,
-    },
-    skip: true,
-  });
+  const query = (params.query || "").toLowerCase().trim();
+  const filter = params.filter || "All";
 
-  useEffect(() => {
-    refetch({
-      filter: params.filter!,
-      query: params.query!,
-    });
-  }, [params.filter, params.query]);
+  const loading = false;
+
+  const filteredProperties = staticProperties.filter((property) => {
+    const matchesQuery =
+      property.name.toLowerCase().includes(query) ||
+      property.address.toLowerCase().includes(query);
+
+    const matchesFilter =
+      filter === "All" || property.type?.toLowerCase() === filter.toLowerCase();
+
+    return matchesQuery && matchesFilter;
+  });
 
   const handleCardPress = (id: string) => router.push(`/properties/${id}`);
 
   return (
     <SafeAreaView className="h-full bg-white">
       <FlatList
-        data={properties}
+        data={filteredProperties}
         numColumns={2}
         renderItem={({ item }) => (
-          <Card item={item} onPress={() => handleCardPress(item.$id)} />
+          <Card item={item} onPress={() => handleCardPress(item.id)} />
         )}
-        keyExtractor={(item) => item.$id}
+        keyExtractor={(item) => item.id}
         contentContainerClassName="pb-32"
         columnWrapperClassName="flex gap-5 px-5"
         showsVerticalScrollIndicator={false}
@@ -85,7 +79,7 @@ const Explore = () => {
               <Filters />
 
               <Text className="text-xl font-rubik-bold text-black-300 mt-5">
-                Found {properties?.length} Properties
+                Found {filteredProperties.length} Properties
               </Text>
             </View>
           </View>

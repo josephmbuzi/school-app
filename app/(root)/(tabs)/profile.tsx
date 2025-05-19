@@ -9,12 +9,9 @@ import {
   View,
 } from "react-native";
 
-import { logout } from "@/lib/appwrite";
-import { useGlobalContext } from "@/lib/global-provider";
-
 import icons from "@/constants/icons";
-import { settings } from "@/constants/data";
 import images from "@/constants/images";
+import { settings } from "@/constants/data";
 
 interface SettingsItemProp {
   icon: ImageSourcePropType;
@@ -47,16 +44,8 @@ const SettingsItem = ({
 );
 
 const Profile = () => {
-  const { user, refetch } = useGlobalContext();
-
-  const handleLogout = async () => {
-    const result = await logout();
-    if (result) {
-      Alert.alert("Success", "Logged out successfully");
-      refetch();
-    } else {
-      Alert.alert("Error", "Failed to logout");
-    }
+  const handleLogout = () => {
+    Alert.alert("Success", "Logged out successfully (static screen)");
   };
 
   return (
